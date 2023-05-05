@@ -1,3 +1,16 @@
+# Big Data Project
+
+![Architecture](.github/architecture.png)
+
+# Tools
+
+1. Docker
+2. Golang
+3. Python
+4. Apache Kafka
+5. Apache Spark
+6. ScyllaDB
+
 # Setup
 
 Start the dependencies (Zookeeper, Kafka, and ScyllaDB)
