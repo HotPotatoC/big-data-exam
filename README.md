@@ -1,3 +1,41 @@
+# Setup
+
+Start the dependencies (Zookeeper, Kafka, and ScyllaDB)
+
+```bash
+docker-compose up -d
+```
+
+Create the kafka topics
+
+```bash
+chmod +x kafka_create_topics.sh
+./kafka_create_topics.sh
+```
+Iinstall the consumer dependencies
+
+```bash
+pip install -r processor/requirements.txt
+```
+
+Start up the consumer
+
+```
+python processor/main.py
+```
+
+Finally, produce the messages
+
+```bash
+go run producer/main.go
+```
+
+To generate new data run
+
+```bash
+go run generate_datasource/main.go
+```
+
 # References
 
 https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
