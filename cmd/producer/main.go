@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/HotPotatoC/bigdata-exam/model"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
@@ -84,15 +85,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for _, message := range messages {
-		if err := produceMessage(p, "messages", message); err != nil {
-			log.Fatal(err)
-		}
-	}
+	var wg sync.WaitGroup
 
-	for _, transaction := range transactions {
-		if err := produceMessage(p, "transactions", transaction); err != nil {
-			log.Fatal(err)
+	wg.Add(2)
+
+	go func() {
+		for _, message := range messages {
+			if err := produceMessage(p, "messages", message); err != nil {
+				log.Fatal(err)
+			}
 		}
-	}
+
+		wg.Done()
+	}()
+
+	go func() {
+		for _, transaction := range transactions {
+			if err := produceMessage(p, "transactions", transaction); err != nil {
+				log.Fatal(err)
+			}
+		}
+		wg.Done()
+	}()
+
+	wg.Wait()
 }
