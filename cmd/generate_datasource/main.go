@@ -63,7 +63,7 @@ func generateTransactionData(data []input) []byte {
 }
 
 func main() {
-	n := 10
+	n := 50
 	fake := faker.New()
 
 	var data []input
