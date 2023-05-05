@@ -2,6 +2,15 @@
 
 ![Architecture](.github/architecture.png)
 
+![Example](.github/example.png)
+
+# Directory Structure
+
+- `cmd` - contains the main entrypoint for the producer and data generation script
+- `data` - contains the generated data
+- `model` - contains the data model structs used in golang
+- `processor` - contains the consumer code and integration with spark
+
 # Tools
 
 1. Docker
