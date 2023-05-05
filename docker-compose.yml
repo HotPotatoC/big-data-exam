@@ -24,3 +24,101 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # 4-node scylladb cluster
+  scylladb-node1:
+    image: scylladb/scylla:5.0.0
+    restart: always
+    container_name: scylladb-node1
+    ports:
+      - 9042:9042
+    networks:
+      - scylla-cluster
+    healthcheck:
+      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+      start_period: 120s
+    volumes:
+      - scylladb-node1-data:/var/lib/scylla
+
+  scylladb-node2:
+    image: scylladb/scylla:5.0.0
+    restart: always
+    container_name: scylladb-node2
+    ports:
+      - 9043:9042
+    command: --seeds=scylladb-node1,scylladb-node3
+    networks:
+      - scylla-cluster
+    healthcheck:
+      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+      start_period: 120s
+    depends_on:
+      scylladb-node1:
+        condition: service_healthy
+    volumes:
+      - scylladb-node2-data:/var/lib/scylla
+
+  scylladb-node3:
+    image: scylladb/scylla:5.0.0
+    restart: always
+    container_name: scylladb-node3
+    ports:
+      - 9044:9042
+    command: --seeds=scylladb-node1
+    networks:
+      - scylla-cluster
+    healthcheck:
+      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+      start_period: 120s
+    depends_on:
+      scylladb-node1:
+        condition: service_healthy
+      scylladb-node2:
+        condition: service_started
+    volumes:
+      - scylladb-node3-data:/var/lib/scylla
+
+  scylladb-node4:
+    image: scylladb/scylla:5.0.0
+    restart: always
+    container_name: scylladb-node4
+    ports:
+      - 9045:9042
+    command: --seeds=scylladb-node1
+    networks:
+      - scylla-cluster
+    healthcheck:
+      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+      start_period: 120s
+    depends_on:
+      scylladb-node1:
+        condition: service_healthy
+      scylladb-node2:
+        condition: service_started
+      scylladb-node3:
+        condition: service_started
+    volumes:
+      - scylladb-node4-data:/var/lib/scylla
+
+volumes:
+  scylladb-node1-data:
+  scylladb-node2-data:
+  scylladb-node3-data:
+  scylladb-node4-data:
+
+
+networks:
+  scylla-cluster:
+    driver: bridge
