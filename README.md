@@ -12,7 +12,16 @@ Create the kafka topics
 chmod +x kafka_create_topics.sh
 ./kafka_create_topics.sh
 ```
-Iinstall the consumer dependencies
+
+Create the database keyspace and table (get schema from [here](init.cql))
+
+```bash
+docker exec -it scylla-node1 cqlsh
+
+cqlsh> # copy and paste schema from init.cql
+```
+
+Install the consumer dependencies
 
 ```bash
 pip install -r processor/requirements.txt
