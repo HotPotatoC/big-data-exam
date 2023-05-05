@@ -39,6 +39,14 @@ Finally, produce the messages
 go run producer/main.go
 ```
 
+Check the database if the data was inserted
+
+```bash
+docker exec -it scylla-node1 cqlsh
+
+cqlsh> select * from integrated_citizen.citizen;
+```
+
 To generate new data run
 
 ```bash
