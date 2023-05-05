@@ -21,7 +21,7 @@ from pyspark.sql.types import (
 
 os.environ[
     "PYSPARK_SUBMIT_ARGS"
-] = "--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 pyspark-shell"
+] = "--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0,com.datastax.spark:spark-cassandra-connector_2.12:3.2.0 pyspark-shell"
 
 
 spark = SparkSession.builder.appName("citizen_data_integration").getOrCreate()
@@ -63,10 +63,32 @@ messages_df = (
 transactions_df = (
     df.filter(col("topic") == "transactions")
     .select(from_json(col("value").cast("string"), transactions_schema).alias("data"))
-    .select("data.*")
+    .select(
+        col("data.citizen_id"),
+        col("data.from"),
+        col("data.to"),
+        col("data.total"),
+        col("data.timestamp").alias("transaction_timestamp"),
+    )
 )
 
 integrated_df = messages_df.join(transactions_df, "citizen_id", "inner")
+integrated_df = (
+    integrated_df.withColumnRenamed("from", "transaction_from")
+    .withColumnRenamed("to", "transaction_to")
+    .withColumnRenamed("total", "total_transaction")
+    .drop("transaction_timestamp")
+)
+
+integrated_df.writeStream.foreachBatch(
+    lambda batch_df, batch_id: batch_df.write.format("org.apache.spark.sql.cassandra")
+    .option("keyspace", "integrated_citizen")
+    .option("table", "citizen")
+    .option("spark.cassandra.connection.host", "127.0.0.1")
+    .option("spark.cassandra.connection.port", "9042")
+    .mode("append")
+    .save()
+).start().awaitTermination()
 
 query = integrated_df.writeStream.outputMode("append").format("console").start()
 query.awaitTermination()

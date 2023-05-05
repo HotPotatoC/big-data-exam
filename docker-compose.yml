@@ -28,6 +28,7 @@ services:
   # 4 Node scylla cluster - https://github.com/aldy505/local-scylladb-cluster/blob/master/docker-compose.yml
   scylla-node1:
     image: scylladb/scylla:5.1.0
+    container_name: scylla-node1
     command: --listen-address=172.20.0.10 --smp=1
     ports:
       - 9042:9042
@@ -56,6 +57,7 @@ services:
 
   scylla-node2:
     image: scylladb/scylla:5.1.0
+    container_name: scylla-node2
     command: --seeds=scylla-node1,scylla-node3,scylla-node4 --listen-address=172.20.0.11 --smp=1
     ports:
       - 9043:9042
@@ -87,6 +89,7 @@ services:
 
   scylla-node3:
     image: scylladb/scylla:5.1.0
+    container_name: scylla-node3
     command: --seeds=scylla-node1 --listen-address=172.20.0.12 --smp=1
     ports:
       - 9044:9042
@@ -120,7 +123,8 @@ services:
 
   scylla-node4:
     image: scylladb/scylla:5.1.0
-    command: --seeds=scylla-node1 --listen-address=172.20.0.12 --smp=1
+    container_name: scylla-node4
+    command: --seeds=scylla-node1 --listen-address=172.20.0.13 --smp=1
     ports:
       - 9045:9042
     networks:
