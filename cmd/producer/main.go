@@ -84,13 +84,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for message := range messages {
+	for _, message := range messages {
 		if err := produceMessage(p, "messages", message); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	for transaction := range transactions {
+	for _, transaction := range transactions {
 		if err := produceMessage(p, "transactions", transaction); err != nil {
 			log.Fatal(err)
 		}
